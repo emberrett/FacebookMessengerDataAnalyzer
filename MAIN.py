@@ -1,12 +1,27 @@
 #  ask for file path of data file
-from tkinter import Tk
+import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
-filename = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
-print(filename)
+# filename = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
+# print(filename)
 
-# ask if user wants to analyze all data or a single group
 
+# create window
+w = tk.Tk()
+w.geometry("600x400")
+w.title("Messenger Data Analyzer")
+w.configure(background='white')
+
+# create and initialize single group button
+groupButton = tk.Button(w, text='Analyze Individual Group', width=25)
+groupButton.place(relx=.5, rely=.2, anchor=tk.CENTER)
+
+# create and initialize all data button
+allButton = tk.Button(w, text='Analyze All Data', width=25)
+allButton.place(relx=.5, rely=.4, anchor=tk.CENTER)
+
+# initialize window
+w.mainloop()
 
 """ 
 *If user selects specific group *
