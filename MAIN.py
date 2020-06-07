@@ -1,42 +1,50 @@
-#  ask for file path of data file
+#  import libraries
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
+import os
+from bs4 import BeautifulSoup as bs
+import re
+from datetime import datetime
 
-# filename = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
-# print(filename)
+# QUERY - FIND MOST USED WORDS
 
 
-# create window
-w = tk.Tk()
-w.geometry("600x400")
-w.title("Messenger Data Analyzer")
-w.configure(background='white')
+file = "/home/ethan/Desktop/facebook-ethanberrett23/messages/inbox/2016marchmadness_6aeoefufua/message_1.html"
 
-# create and initialize single group button
-groupButton = tk.Button(w, text='Analyze Individual Group', width=25)
-groupButton.place(relx=.5, rely=.2, anchor=tk.CENTER)
 
-# create and initialize all data button
-allButton = tk.Button(w, text='Analyze All Data', width=25)
-allButton.place(relx=.5, rely=.4, anchor=tk.CENTER)
+# write a function that takes the file name as a parameter
+def getmessages(messageFile):
+    with open(messageFile, 'r') as f:
+        html_string = f.read()
 
-# initialize window
-w.mainloop()
+    parsedFile = str(bs(html_string, 'html.parser'))
+    print(parsedFile)
 
-""" 
-*If user selects specific group *
-Create array of group names
-Provide list to user and ask user to select a group (with search function)
-"""
+    DivClass = "_3-96 _2pio _2lek _2lel"
+    for m in re.finditer(DivClass, parsedFile):
+        # find date of message
+        DateEnd = m.start() - 79
+        CutDate = parsedFile[:DateEnd]
+        DateStart = CutDate.rfind("2lem") + 6
+        DateTime = CutDate[DateStart:]
+        # Date = datetime.strptime(DateTime, '%D')
+        # Time = datetime.strptime(DateTime, '%Y-%m-%d')
+        print(DateTime)
 
-# if user selects all data, go to date range
+        # find name of message sender
+        NameStart = m.start() + 25
+        CutName = parsedFile[NameStart:]
+        NameEnd = CutName.find("</div>")
+        Name = CutName[0:NameEnd]
+        print(Name)
 
-# ask for date range
+        # find message
+        CutMessage = CutName[NameEnd + 52:]
+        MessageEnd = CutMessage.find("</div>")
+        Message = CutMessage[:MessageEnd]
+        print(Message)
 
-# show list of possible queries based on what user chose above
+        #
 
-# run query (switch statement with queries contained in each one)
 
-# Export data to CSV if desired - ask for file path/name
-# create visualized data if desired
-# export visualized data if desired - ask for file path/name
+getmessages(file)
