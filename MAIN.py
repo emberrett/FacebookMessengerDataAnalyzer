@@ -20,31 +20,43 @@ def getmessages(messageFile):
     parsedFile = str(bs(html_string, 'html.parser'))
     print(parsedFile)
 
+    # div class that always precedes a message
     DivClass = "_3-96 _2pio _2lek _2lel"
-    for m in re.finditer(DivClass, parsedFile):
+
+    # skip first message since it isn't an actual message
+    messages = re.finditer(DivClass, parsedFile)
+    next(messages)
+
+    # create dictionary to store messages
+    messDict = {}
+    # starting number for dictionary
+    x = 0
+    for m in messages:
         # find date of message
         DateEnd = m.start() - 79
         CutDate = parsedFile[:DateEnd]
         DateStart = CutDate.rfind("2lem") + 6
         DateTime = CutDate[DateStart:]
-        # Date = datetime.strptime(DateTime, '%D')
-        # Time = datetime.strptime(DateTime, '%Y-%m-%d')
-        print(DateTime)
+
+        # convert to standard date time
+        DateTime = datetime.strptime(DateTime, "%b %d, %Y, %I:%M %p")
+        DateTime = str(DateTime)
 
         # find name of message sender
         NameStart = m.start() + 25
         CutName = parsedFile[NameStart:]
         NameEnd = CutName.find("</div>")
         Name = CutName[0:NameEnd]
-        print(Name)
 
         # find message
         CutMessage = CutName[NameEnd + 52:]
         MessageEnd = CutMessage.find("</div>")
         Message = CutMessage[:MessageEnd]
-        print(Message)
 
-        #
+        MessageTuple = DateTime, Name, Message
+        messDict[x] = MessageTuple
+        x += 1
 
 
 getmessages(file)
+
