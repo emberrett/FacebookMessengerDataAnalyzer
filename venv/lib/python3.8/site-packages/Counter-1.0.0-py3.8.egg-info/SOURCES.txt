@@ -1,0 +1,10 @@
+LICENSE
+MANIFEST.in
+README.rst
+counter.py
+setup.cfg
+setup.py
+Counter.egg-info/PKG-INFO
+Counter.egg-info/SOURCES.txt
+Counter.egg-info/dependency_links.txt
+Counter.egg-info/top_level.txt
