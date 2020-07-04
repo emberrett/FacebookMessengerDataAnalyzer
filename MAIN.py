@@ -1,23 +1,32 @@
-#  import libraries
+# library for handling html
 from bs4 import BeautifulSoup as bs
-import re
+# library for handling dates and time
 from datetime import datetime
+# library for plotting data
 import matplotlib.pyplot as plt
+# library to convert dictionary to list
 import operator
-import time
+# library for UI
+from tkinter import filedialog
+from tkinter import *
 
-# QUERY - FIND MOST USED WORDS
+# keeps root window closed
+root = Tk()
+root.withdraw()
 
+# choose file to run queries on
+# file = "/home/ethan/Desktop/facebook-ethanberrett23/messages/inbox/2016marchmadness_6aeoefufua/message_1.html"
+file = filedialog.askopenfilename()
 
-file = "/home/ethan/Desktop/facebook-ethanberrett23/messages/inbox/2016marchmadness_6aeoefufua/message_1.html"
-
+# pass text from html file into string
 with open(file, 'r') as f:
     html_string = f.read()
 
+# parse HTML string with beautifulsoup
 parsed_file = str(bs(html_string, 'html.parser'))
 
-start_date = '2016-03-17 10:55:00'
-end_date = '2016-03-17 10:56:00'
+start_date = '2010-03-17 10:55:00'
+end_date = '2020-03-17 10:56:00'
 
 
 # write a function that takes the file name as a parameter
@@ -81,16 +90,16 @@ def find_sender_count():
 
     chart_title = re.search('<title>(.*)</title>', parsed_file)
     chart_title = (chart_title.group(1))
-    chart_title = "Number of Messages Sent in " + chart_title + '\n' + " from " + start_date.split(' ')[0] + " to " + end_date.split(' ')[0]
-    # set x access
+    chart_title = "Number of Messages Sent in " + chart_title + '\n' + " from " + start_date.split(' ')[0] + " to " + \
+                  end_date.split(' ')[0]
+    # set x axis
     keys = name_list.keys()
-    # set y access
+    # set y axis
     values = name_list.values()
 
     # create chart
     plt.figure(figsize=(15, 15))
     plt.title(chart_title, fontsize=20)
-
     plt.bar(keys, values)
     plt.xticks(fontsize=20)
     plt.xticks(rotation=-70)
@@ -102,3 +111,4 @@ def find_sender_count():
 # add all unique values to tuples
 
 find_sender_count()
+
