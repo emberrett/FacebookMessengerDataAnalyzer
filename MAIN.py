@@ -1,5 +1,7 @@
 # library for handling dates and time
 from datetime import datetime
+# for handling timezones
+from datetime import timezone
 # library for plotting data
 import matplotlib.pyplot as plt
 # library to convert dictionary to list
@@ -15,21 +17,11 @@ import os
 root = Tk()
 root.withdraw()
 
-# create GUI
-"""
-window = Tk()
-
-window.title('Messenger Data Analyzer')
-window.geometry("300x300+10+20")
-window.mainloop()
-
-"""
-
 # ask user to select file
 folder = filedialog.askdirectory(title="Select Folder")
-
-start_date = 1593578720
-end_date = 1585102129512
+folder_name = os.path.basename(os.path.normpath(folder)).split("_")[0]
+start_datetime = 'Jan 1 2020  12:00AM'
+end_datetime = 'Dec 31 2020  12:59PM'
 
 
 # write a function that takes the file name as a parameter
@@ -61,36 +53,51 @@ def get_messages():
     return mess_dict
 
 
-def find_sender_count():
+def find_sender_count(start, end):
     mess_dict = get_messages()
-    name_list = {}
+    count_dict = {}
+
+    # convert start date+time to datetime, then timestamp as integer
+    start_datetime_dt = datetime.strptime(start, '%b %d %Y %I:%M%p')
+    start_datetime_ts = int(start_datetime_dt.replace(tzinfo=timezone.utc).timestamp()) * 1000
+
+    # convert end date+time to datetime, then timestamp as integer
+    end_datetime_dt = datetime.strptime(end, '%b %d %Y %I:%M%p')
+    end_datetime_ts = int(end_datetime_dt.replace(tzinfo=timezone.utc).timestamp()) * 1000
+
+    # put names here that you want to exclude
+    exclude_list = ["Chavis Landman"]
     # get unique names in messages
     for x in mess_dict:
-        y = mess_dict[x][1]
-        if y not in name_list:
-            name_list[y] = 0
+        if mess_dict[x][1] not in exclude_list:
+            y = mess_dict[x][1]
+        # if name is not in name list, add it and set the value to 0
+        if y not in count_dict:
+            count_dict[y] = 0
             # check if message is in date range
-        if start_date <= mess_dict[x][0] <= end_date:
-            name_list[y] += 1
-    print(name_list)
+        if start_datetime_ts <= mess_dict[x][0] <= end_datetime_ts:
+            count_dict[y] += 1
+
+    # creates nwe formatted dict with first name and last initial
+    formatted_count = {}
+    for x in count_dict.keys():
+        name_split = x.split(" ")
+        formatted_name = name_split[0] + " " + name_split[-1][:1]
+        formatted_count[formatted_name] = count_dict[x]
 
     # sort dictionary by descending order
-    name_list = dict(sorted(name_list.items(), key=operator.itemgetter(1), reverse=True))
+    formatted_count = dict(sorted(formatted_count.items(), key=operator.itemgetter(1), reverse=True))
 
-    group_name = input("What is the name of this group? ")
-    string_start_date = str(start_date)
-    string_end_date = str(end_date)
-    chart_title = "Number of Messages Sent in " + group_name + '\n' + " from " + str(start_date) + " to " + \
-                  str(end_date)
+    chart_title = "Number of Messages Sent in " + folder_name + '\n' + " from " + start + " to " + end
     # set x axis
-    keys = name_list.keys()
+    keys = formatted_count.keys()
     print(keys)
     # set y axis
-    values = name_list.values()
+    values = formatted_count.values()
     print(values)
 
     # create chart
-    plt.figure(figsize=(15, 15))
+    # plt.figure(figsize=(15, 15))
     plt.title(chart_title, fontsize=20)
     plt.bar(keys, values)
     plt.xticks(fontsize=20)
@@ -98,8 +105,9 @@ def find_sender_count():
     plt.yticks(fontsize=20)
     plt.subplots_adjust(bottom=0.3)
     plt.show()
+    plt.imshow(X, aspect='auto')
 
 
 # add all unique values to tuples
 
-find_sender_count()
+find_sender_count(start_datetime, end_datetime)
