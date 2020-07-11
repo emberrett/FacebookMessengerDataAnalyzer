@@ -22,9 +22,12 @@ primary_color = '#343837'
 secondary_color = '#001146'
 tertiary_color = 'white'
 
+# people you want to exclude from your data
+exclude_list = ["Nate Berrett", "Aimee Berrett"]
+
 
 # write a function that takes the file name as a parameter
-def get_messages():
+def get_textual_messages():
     mess_dict = {}
     x = 0
     for file in os.listdir(folder):
@@ -52,8 +55,32 @@ def get_messages():
     return mess_dict
 
 
+def get_all_messages():
+    mess_dict = {}
+    x = 0
+    for file in os.listdir(folder):
+        if file.endswith(".json"):
+            file_path = os.path.realpath(folder) + "\\" + str(file)
+            # open json file in read mode
+            with open(file_path, "r") as read_file:
+                data = json.load(read_file)
+            # starting number for dictionary
+            for message in data['messages']:
+                # find time of message
+                message_timestamp = message['timestamp_ms']
+
+                # find message sender
+                message_sender = message['sender_name']
+
+                message_tuple = message_timestamp, message_sender
+                mess_dict[x] = message_tuple
+                x += 1
+    print(mess_dict)
+    return mess_dict
+
+
 def find_sender_count_date_range(start, end):
-    mess_dict = get_messages()
+    mess_dict = get_all_messages()
     count_dict = {}
 
     # convert start date+time to datetime, then timestamp as integer
@@ -65,7 +92,6 @@ def find_sender_count_date_range(start, end):
     end_datetime_ts = int(end_datetime_dt.replace(tzinfo=timezone.utc).timestamp()) * 1000
 
     # put names here that you want to exclude
-    exclude_list = ["Chavis Landman"]
     # get unique names in messages
     for x in mess_dict:
         if mess_dict[x][1] not in exclude_list:
@@ -146,11 +172,9 @@ def find_sender_count_date_range(start, end):
 
 
 def find_sender_count_total():
-    mess_dict = get_messages()
+    mess_dict = get_all_messages()
     count_dict = {}
 
-    # put names here that you want to exclude
-    exclude_list = ["Chavis Landman"]
     # get unique names in messages
     for x in mess_dict:
         if mess_dict[x][1] not in exclude_list:
