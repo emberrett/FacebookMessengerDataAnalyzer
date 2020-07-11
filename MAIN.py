@@ -1,17 +1,11 @@
-# library for handling dates and time
-from datetime import datetime
-# for handling timezones
-from datetime import timezone
-# library for plotting data
-import matplotlib.pyplot as plt
-# library to convert dictionary to list
-import operator
-# library for UI
-from tkinter import filedialog
-from tkinter import *
-# library for handling json
-import json
-import os
+from datetime import datetime  # for handling dates and time
+from datetime import timezone  # for handling timezones
+import matplotlib.pyplot as plt  # library for plotting data
+import operator  # to convert dictionary to list
+from tkinter import filedialog  # for file selection UI
+from tkinter import *  # for UI
+import json  # for handling json
+import os  # library for handling paths
 
 # keeps root window closed
 root = Tk()
@@ -22,6 +16,11 @@ folder = filedialog.askdirectory(title="Select Folder")
 folder_name = os.path.basename(os.path.normpath(folder)).split("_")[0]
 start_datetime = 'Jan 1 2020  12:00AM'
 end_datetime = 'Dec 31 2020  12:59PM'
+
+# set color of charts
+primary_color = '#343837'
+secondary_color = '#001146'
+tertiary_color = 'white'
 
 
 # write a function that takes the file name as a parameter
@@ -53,7 +52,7 @@ def get_messages():
     return mess_dict
 
 
-def find_sender_count(start, end):
+def find_sender_count_date_range(start, end):
     mess_dict = get_messages()
     count_dict = {}
 
@@ -97,17 +96,138 @@ def find_sender_count(start, end):
     print(values)
 
     # create chart
-    # plt.figure(figsize=(15, 15))
-    plt.title(chart_title, fontsize=20)
-    plt.bar(keys, values)
+    # set width of bars
+    bar_width = .4
+    # create chart
+    fig, ax = plt.subplots()
+    # set background color
+    fig.patch.set_facecolor(primary_color)
+    ax.set_facecolor(primary_color)
+
+    # change color of chart borders
+    ax.spines['bottom'].set_color(tertiary_color)
+    ax.spines['top'].set_color(tertiary_color)
+    ax.spines['left'].set_color(tertiary_color)
+    ax.spines['right'].set_color(tertiary_color)
+
+    # set color of labels
+    ax.xaxis.label.set_color(tertiary_color)
+    ax.yaxis.label.set_color(tertiary_color)
+
+    # set color of ticks
+    ax.tick_params(axis='x', colors=tertiary_color)
+    ax.tick_params(axis='y', colors=tertiary_color)
+
+    # set title and styling of title
+    plt.title(chart_title, fontsize=20, color=tertiary_color)
+
+    # set bars to variable
+    bars = plt.bar(keys, values, color=secondary_color, width=bar_width)
+
+    # get height of largest bar
+    highest_bar = max(values)
+
+    # assign your bars to a variable so their attributes can be accessed
     plt.xticks(fontsize=20)
     plt.xticks(rotation=-90)
     plt.yticks(fontsize=20)
     plt.subplots_adjust(bottom=0.3)
+
+    # access the bar attributes to place the text in the appropriate location
+    for bar in bars:
+        bar_height = bar.get_height()
+        label_height = bar_height - (.1 * bar_height)
+        # if label would not fit in axis, put label above it
+        if bar_height < label_height - (bar_height - (bar_height * .1)):
+            label_height = bar_height + (.1 * bar_height)
+        plt.text(bar.get_x() + (bar_width / 2), label_height, bar_height, color=tertiary_color,
+                 horizontalalignment='center')
     plt.show()
-    plt.imshow(X, aspect='auto')
+
+
+def find_sender_count_total():
+    mess_dict = get_messages()
+    count_dict = {}
+
+    # put names here that you want to exclude
+    exclude_list = ["Chavis Landman"]
+    # get unique names in messages
+    for x in mess_dict:
+        if mess_dict[x][1] not in exclude_list:
+            y = mess_dict[x][1]
+        # if name is not in name list, add it and set the value to 0
+        if y not in count_dict:
+            count_dict[y] = 0
+            # check if message is in date range
+        count_dict[y] += 1
+
+    # creates nwe formatted dict with first name and last initial
+    formatted_count = {}
+    for x in count_dict.keys():
+        name_split = x.split(" ")
+        formatted_name = name_split[0] + " " + name_split[-1][:1]
+        formatted_count[formatted_name] = count_dict[x]
+
+    # sort dictionary by descending order
+    formatted_count = dict(sorted(formatted_count.items(), key=operator.itemgetter(1), reverse=True))
+
+    chart_title = "Number of Messages Sent in " + folder_name + '\n' + " All Time"
+    # set x axis
+    keys = formatted_count.keys()
+    # set y axis
+    values = formatted_count.values()
+
+    # set width of bars
+    bar_width = .4
+    # create chart
+    fig, ax = plt.subplots()
+    # set background color
+    fig.patch.set_facecolor(primary_color)
+    ax.set_facecolor(primary_color)
+
+    # change color of chart borders
+    ax.spines['bottom'].set_color(tertiary_color)
+    ax.spines['top'].set_color(tertiary_color)
+    ax.spines['left'].set_color(tertiary_color)
+    ax.spines['right'].set_color(tertiary_color)
+
+    # set color of labels
+    ax.xaxis.label.set_color(tertiary_color)
+    ax.yaxis.label.set_color(tertiary_color)
+
+    # set color of ticks
+    ax.tick_params(axis='x', colors=tertiary_color)
+    ax.tick_params(axis='y', colors=tertiary_color)
+
+    # set title and styling of title
+    plt.title(chart_title, fontsize=20, color=tertiary_color)
+
+    # set bars to variable
+    bars = plt.bar(keys, values, color=secondary_color, width=bar_width)
+
+    # get height of largest bar
+    highest_bar = max(values)
+
+    # assign your bars to a variable so their attributes can be accessed
+    plt.xticks(fontsize=20)
+    plt.xticks(rotation=-90)
+    plt.yticks(fontsize=20)
+    plt.subplots_adjust(bottom=0.3)
+
+    # access the bar attributes to place the text in the appropriate location
+    for bar in bars:
+        bar_height = bar.get_height()
+        label_height = bar_height - (.1 * bar_height)
+        # if label would not fit in axis, put label above it
+        if bar_height < label_height - (bar_height - (bar_height * .1)):
+            label_height = bar_height + (.1 * bar_height)
+        plt.text(bar.get_x() + (bar_width / 2), label_height, bar_height, color=tertiary_color,
+                 horizontalalignment='center')
+    plt.show()
 
 
 # add all unique values to tuples
 
-find_sender_count(start_datetime, end_datetime)
+# find_sender_count_date_range(start_datetime, end_datetime)
+
+find_sender_count_total()
