@@ -23,7 +23,7 @@ secondary_color = '#001146'
 tertiary_color = 'white'
 
 # people you want to exclude from your data
-exclude_list = ["Nate Berrett", "Aimee Berrett"]
+exclude_list = []
 
 
 # write a function that takes the file name as a parameter
@@ -250,8 +250,89 @@ def find_sender_count_total():
     plt.show()
 
 
-# add all unique values to tuples
+def find_character_count_total():
+    mess_dict = get_textual_messages()
+    count_dict = {}
+
+    # get unique names in messages
+    for x in mess_dict:
+        if mess_dict[x][1] not in exclude_list:
+            y = mess_dict[x][1]
+        # if name is not in name list, add it and set the value to 0
+        if y not in count_dict:
+            count_dict[y] = 0
+            # check if message is in date range
+        count_dict[y] += len(mess_dict[x][2])
+
+    # creates nwe formatted dict with first name and last initial
+    formatted_count = {}
+    for x in count_dict.keys():
+        name_split = x.split(" ")
+        formatted_name = name_split[0] + " " + name_split[-1][:1]
+        formatted_count[formatted_name] = count_dict[x]
+
+    # sort dictionary by descending order
+    formatted_count = dict(sorted(formatted_count.items(), key=operator.itemgetter(1), reverse=True))
+
+    chart_title = "Number of Characters Sent in " + folder_name + '\n' + " All Time"
+    # set x axis
+    keys = formatted_count.keys()
+    # set y axis
+    values = formatted_count.values()
+
+    # set width of bars
+    bar_width = .4
+    # create chart
+    fig, ax = plt.subplots()
+    # set background color
+    fig.patch.set_facecolor(primary_color)
+    ax.set_facecolor(primary_color)
+
+    # change color of chart borders
+    ax.spines['bottom'].set_color(tertiary_color)
+    ax.spines['top'].set_color(tertiary_color)
+    ax.spines['left'].set_color(tertiary_color)
+    ax.spines['right'].set_color(tertiary_color)
+
+    # set color of labels
+    ax.xaxis.label.set_color(tertiary_color)
+    ax.yaxis.label.set_color(tertiary_color)
+
+    # set color of ticks
+    ax.tick_params(axis='x', colors=tertiary_color)
+    ax.tick_params(axis='y', colors=tertiary_color)
+
+    # set title and styling of title
+    plt.title(chart_title, fontsize=20, color=tertiary_color)
+
+    # set bars to variable
+    bars = plt.bar(keys, values, color=secondary_color, width=bar_width)
+
+    # get height of largest bar
+    highest_bar = max(values)
+
+    # assign your bars to a variable so their attributes can be accessed
+    plt.xticks(fontsize=20)
+    plt.xticks(rotation=-90)
+    plt.yticks(fontsize=20)
+    plt.subplots_adjust(bottom=0.3)
+
+    # access the bar attributes to place the text in the appropriate location
+    for bar in bars:
+        bar_height = bar.get_height()
+        label_height = bar_height - (.1 * bar_height)
+        # if label would not fit in axis, put label above it
+        if bar_height < label_height - (bar_height - (bar_height * .1)):
+            label_height = bar_height + (.1 * bar_height)
+        plt.text(bar.get_x() + (bar_width / 2), label_height, bar_height, color=tertiary_color,
+                 horizontalalignment='center')
+    plt.show()
+
+
+# uncomment a function below to run it
 
 # find_sender_count_date_range(start_datetime, end_datetime)
 
-find_sender_count_total()
+# find_sender_count_total()
+
+find_character_count_total()
