@@ -1,7 +1,7 @@
 # Default ignored files
 /shelf/
 /workspace.xml
-/__pycache__
-/venv
+/__pycache__/
+/venv/
 To-Do
 Testing.py

@@ -14,7 +14,7 @@ You must download your Facebook data in JSON format before running this script. 
 
 The script begins by asking the user to select a folder with JSON data within to run queries on. The messenger files are in your **Facebook data folder** > **messages** > **inbox**.
 
-Run specific queries by uncommenting them at the bottom of  MAIN.py.
+Run specific queries by uncommenting them at the bottom of  MessengerAnalyzer.py.
 
 Modify the date ranges, appearance, and excluded data which are passed to the query functions at the beginning of the script (see commented code for more details).<br /><br />
 
