@@ -39,7 +39,6 @@ word_exclude_list = ["I", "You", "the", "to", "a", "is", "and", "of", "that", "y
                      "Haha", "haha", "He", "go", "Just", "I've", "Iâm", "it.", "she", "HAHAHA", "where", "very",
                      "HAHAHAHAHA", "into", "these", "than", "A", "They", "can't", "am", "Also"]
 # how many words to show in the most used words functions
-most_common_count = 100
 
 
 # write a function that takes the file name as a parameter
@@ -437,7 +436,7 @@ def find_character_count_date_range(start, end):
     plt.show()
 
 
-def find_most_used_words():
+def find_most_used_words(most_common_count):
     mess_dict = get_textual_messages()
     count_dict = {}
     # get unique names in messages
@@ -567,6 +566,6 @@ def single_word_usage(chosen_word):
 
 # find_character_count_date_range(start_datetime, end_datetime)
 
-# find_most_used_words()
+# find_most_used_words(100)
 
-# single_word_usage("word")
+#single_word_usage("Trump")
