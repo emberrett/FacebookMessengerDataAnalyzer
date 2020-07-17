@@ -25,7 +25,7 @@ secondary_color = '#001146'
 tertiary_color = 'white'
 
 # people you want to exclude from your data
-exclude_list = ["Chavis Landman"]
+exclude_list = []
 
 # words you want to exclude from you word count data
 word_exclude_list = ["I", "You", "the", "to", "a", "is", "and", "of", "that", "you", "in", "it", "so", "for", "my",
