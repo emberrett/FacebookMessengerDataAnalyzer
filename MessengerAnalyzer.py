@@ -1,5 +1,5 @@
-from datetime import datetime  # for handling dates and time
-from datetime import timezone  # for handling timezones
+from datetime import datetime
+from datetime import timezone
 import matplotlib.pyplot as plt  # library for plotting data
 import operator  # to convert dictionary to list
 from tkinter import filedialog  # for file selection UI
@@ -25,7 +25,7 @@ secondary_color = '#001146'
 tertiary_color = 'white'
 
 # people you want to exclude from your data
-exclude_list = []
+exclude_list = ["Chavis Landman"]
 
 # words you want to exclude from you word count data
 word_exclude_list = ["I", "You", "the", "to", "a", "is", "and", "of", "that", "you", "in", "it", "so", "for", "my",
@@ -38,6 +38,8 @@ word_exclude_list = ["I", "You", "the", "to", "a", "is", "and", "of", "that", "y
                      "don't", "It", "them", "by", "It's", "too", "ha!", "HAHAHAHA", "because", "That's", "her", "who",
                      "Haha", "haha", "He", "go", "Just", "I've", "Iâm", "it.", "she", "HAHAHA", "where", "very",
                      "HAHAHAHAHA", "into", "these", "than", "A", "They", "can't", "am", "Also"]
+
+
 # how many words to show in the most used words functions
 
 
@@ -556,6 +558,94 @@ def single_word_usage(chosen_word):
     plt.show()
 
 
+def find_average_message_length():
+    mess_dict = get_textual_messages()
+    character_count_dict = {}
+    message_count_dict = {}
+    # get unique names in messages
+    for x in mess_dict:
+        if mess_dict[x][1] not in exclude_list:
+            y = mess_dict[x][1]
+        # if name is not in name list, add it and set the value to 0
+        if y not in character_count_dict:
+            character_count_dict[y] = 0
+            message_count_dict[y] = 0
+            # check if message is in date range
+        character_count_dict[y] += len(mess_dict[x][2])
+        message_count_dict[y] += 1
+    print(character_count_dict)
+    print(message_count_dict)
+    average_character_count = {}
+    for c in character_count_dict.keys():
+        average_key = c
+        average_value = character_count_dict[c] / message_count_dict[c]
+        average_value = round(average_value, 2)
+        average_character_count[average_key] = average_value
+    print(average_character_count)
+    # creates nwe formatted dict with first name and last initial
+    formatted_count = {}
+    for x in average_character_count.keys():
+        name_split = x.split(" ")
+        formatted_name = name_split[0] + " " + name_split[-1][:1]
+        formatted_count[formatted_name] = average_character_count[x]
+
+    # sort dictionary by descending order
+    formatted_count = dict(sorted(formatted_count.items(), key=operator.itemgetter(1), reverse=True))
+
+    chart_title = "Average Length of Message Per Person in " + folder_name + '\n' + " All Time"
+    # set x axis
+    keys = formatted_count.keys()
+    # set y axis
+    values = formatted_count.values()
+
+    # set width of bars
+    bar_width = .4
+    # create chart
+    fig, ax = plt.subplots()
+    # set background color
+    fig.patch.set_facecolor(primary_color)
+    ax.set_facecolor(primary_color)
+
+    # change color of chart borders
+    ax.spines['bottom'].set_color(tertiary_color)
+    ax.spines['top'].set_color(tertiary_color)
+    ax.spines['left'].set_color(tertiary_color)
+    ax.spines['right'].set_color(tertiary_color)
+
+    # set color of labels
+    ax.xaxis.label.set_color(tertiary_color)
+    ax.yaxis.label.set_color(tertiary_color)
+
+    # set color of ticks
+    ax.tick_params(axis='x', colors=tertiary_color)
+    ax.tick_params(axis='y', colors=tertiary_color)
+
+    # set title and styling of title
+    plt.title(chart_title, fontsize=20, color=tertiary_color)
+
+    # set bars to variable
+    bars = plt.bar(keys, values, color=secondary_color, width=bar_width)
+
+    # get height of largest bar
+    highest_bar = max(values)
+
+    # assign your bars to a variable so their attributes can be accessed
+    plt.xticks(fontsize=20)
+    plt.xticks(rotation=-90)
+    plt.yticks(fontsize=20)
+    plt.subplots_adjust(bottom=0.3)
+
+    # access the bar attributes to place the text in the appropriate location
+    for bar in bars:
+        bar_height = bar.get_height()
+        label_height = bar_height - (.1 * bar_height)
+        # if label would not fit in axis, put label above it
+        if bar_height < label_height - (bar_height - (bar_height * .1)):
+            label_height = bar_height + (.1 * bar_height)
+        plt.text(bar.get_x() + (bar_width / 2), label_height, bar_height, color=tertiary_color,
+                 horizontalalignment='center')
+    plt.show()
+
 # uncomment a function below to run it
 
 # find_sender_count_date_range(start_datetime, end_datetime)
@@ -568,4 +658,6 @@ def single_word_usage(chosen_word):
 
 # find_most_used_words(100)
 
-#single_word_usage("Trump")
+single_word_usage("yah")
+
+# find_average_message_length()

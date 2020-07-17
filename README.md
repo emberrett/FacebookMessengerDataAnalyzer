@@ -38,7 +38,9 @@ Modify the date ranges, appearance, and excluded data which are passed to the qu
 - **find\_most\_used\_words(most\_common\_count)**
   - Finds most used words in a messenger thread (sorted by most to least). Specify **most\_common\_count** as integer for how many words you want to include in the results. Exports data to csv in user-specified location.
 - **single\_word\_usage(chosen\_word)**
-  - Finds total uses of specified word **(chosen\_word)** by each user and shows the results as a bar graph.<br /><br />
+  - Finds total uses of specified word **(chosen\_word)** by each user and shows the results as a bar graph.
+- **find\_average\_message\_length()**
+  - Finds average message length of messages sent by each user and shows the results as a bar graph.<br /><br />
 
 **Required Libraries**
 
