@@ -7,7 +7,9 @@ from tkinter import *  # for UI
 import json  # for handling json
 import os  # library for handling paths
 from collections import Counter  # for counting words
+from collections import OrderedDict
 import csv  # for exporting data
+import numpy as np
 
 # keeps root window closed
 root = Tk()
@@ -16,6 +18,8 @@ root.withdraw()
 # ask user to select file
 folder = filedialog.askdirectory(title="Select Folder")
 folder_name = os.path.basename(os.path.normpath(folder)).split("_")[0]
+
+# sets data range for results
 start_datetime = 'Jul 12 2019  12:00AM'
 end_datetime = 'Jul 12 2020  12:59PM'
 
@@ -25,7 +29,7 @@ secondary_color = '#001146'
 tertiary_color = 'white'
 
 # people you want to exclude from your data
-exclude_list = []
+exclude_list = ["Chavis Landman"]
 
 # words you want to exclude from you word count data
 word_exclude_list = ["I", "You", "the", "to", "a", "is", "and", "of", "that", "you", "in", "it", "so", "for", "my",
@@ -40,15 +44,14 @@ word_exclude_list = ["I", "You", "the", "to", "a", "is", "and", "of", "that", "y
                      "HAHAHAHAHA", "into", "these", "than", "A", "They", "can't", "am", "Also"]
 
 
-# how many words to show in the most used words functions
-
-
 # write a function that takes the file name as a parameter
 def get_textual_messages():
     mess_dict = {}
     x = 0
+    # finds all files in selected folder that have json extensions
     for file in os.listdir(folder):
         if file.endswith(".json"):
+            # add file name to location to create full path
             file_path = os.path.realpath(folder) + "\\" + str(file)
             # open json file in read mode
             with open(file_path, "r") as read_file:
@@ -75,7 +78,9 @@ def get_textual_messages():
 def get_all_messages():
     mess_dict = {}
     x = 0
+    # finds all files in selected folder that have json extensions
     for file in os.listdir(folder):
+        # add file name to location to create full path
         if file.endswith(".json"):
             file_path = os.path.realpath(folder) + "\\" + str(file)
             # open json file in read mode
@@ -92,7 +97,6 @@ def get_all_messages():
                 message_tuple = message_timestamp, message_sender
                 mess_dict[x] = message_tuple
                 x += 1
-    print(mess_dict)
     return mess_dict
 
 
@@ -646,6 +650,126 @@ def find_average_message_length():
                  horizontalalignment='center')
     plt.show()
 
+
+def message_count_by_month():
+    mess_dict = get_all_messages()
+    month_list = []
+
+    for x in mess_dict:
+        # get timestamp from message
+        timestamp = int(mess_dict[x][0]) / 1000
+        # convert time stamp to date time
+        dt = datetime.fromtimestamp(timestamp)
+        # get month and year from time stamp, and combine them
+        message_year = int(dt.year)
+        message_month = int(dt.month)
+        message_date = str(message_year) + "-" + str(message_month)
+        # add month and year combo to month list if they are not in there already
+        if message_date not in month_list:
+            month_list.append(message_date)
+
+    # the month_list will miss months that had no messages sent, so we need to add them in
+
+    # sort list by year, then month
+    month_list = sorted(month_list, key=lambda x: (int(x.split("-")[0]), int(x.split("-")[-1])))
+
+    # get the last and first month
+    first_month = month_list[0]
+    # add all months in range
+    last_month = month_list[-1]
+
+    # get first/last month/year as integers, to be used for conditionals
+    first_month_only = int(first_month.split("-")[-1])
+    last_month_only = int(last_month.split("-")[-1])
+    first_year_only = int(first_month.split("-")[0])
+    last_year_only = int(last_month.split("-")[0])
+
+    year_iter = first_year_only
+    month_iter = first_month_only
+
+    # new month list that will have all months, even ones where no messages are sent
+    new_month_list = []
+    while year_iter <= last_year_only:
+        # need to find way to break on last year and month
+        added_date = str(year_iter) + "-" + str(month_iter)
+        new_month_list.append(added_date)
+        month_iter += 1
+        if month_iter > 12:
+            year_iter += 1
+            month_iter = 1
+        if month_iter > last_month_only and year_iter >= last_year_only:
+            break
+
+    month_counts = []
+
+    # create list with as many entries as there are months in the new month list
+    for m in new_month_list:
+        month_counts.append(0)
+
+    # for each message, find the month/year and add it to the month counts relative to where it is in the month list
+    for x in mess_dict:
+        # get timestamp from message
+        timestamp = int(mess_dict[x][0]) / 1000
+        # convert time stamp to date time
+        dt = datetime.fromtimestamp(timestamp)
+        # get month and year from time stamp, and combine them
+        message_year = int(dt.year)
+        message_month = int(dt.month)
+        message_date = str(message_year) + "-" + str(message_month)
+        month_counts[(new_month_list.index(message_date))] += 1
+
+    # we want the counts to be the total up to that point, not just the total for the month
+    # so for each month count after the first, we need to add the value from the previous month
+    u = 0
+    for m, s in enumerate(month_counts):
+        if u > 0:
+            month_counts[m] += month_counts[m - 1]
+        u = 1
+
+    chart_title = "Messages Sent in " + folder_name + '\n' + " All Time"
+    # set x axis
+    keys = new_month_list
+    # set y axis
+    values = month_counts
+
+    # create chart
+    fig, ax = plt.subplots()
+    # set background color
+    fig.patch.set_facecolor(primary_color)
+    ax.set_facecolor(primary_color)
+
+    # change color of chart borders
+    ax.spines['bottom'].set_color(tertiary_color)
+    ax.spines['top'].set_color(tertiary_color)
+    ax.spines['left'].set_color(tertiary_color)
+    ax.spines['right'].set_color(tertiary_color)
+
+    # set color of labels
+    ax.xaxis.label.set_color(tertiary_color)
+    ax.yaxis.label.set_color(tertiary_color)
+
+    # set color of ticks
+    ax.tick_params(axis='x', colors=tertiary_color)
+    ax.tick_params(axis='y', colors=tertiary_color)
+
+    # set title and styling of title
+    plt.title(chart_title, fontsize=20, color=tertiary_color)
+
+    # set bars to variable
+    plt.plot(keys, values, color=tertiary_color)
+
+    # assign your bars to a variable so their attributes can be accessed
+    plt.xticks(fontsize=20)
+    plt.xticks(rotation=-90)
+    plt.xticks(size=15)
+    plt.yticks(fontsize=20)
+    plt.subplots_adjust(bottom=0.3)
+    plt.xticks(np.arange(0, len(keys), 3))
+
+    # access the bar attributes to place the text in the appropriate location
+    plt.show()
+
+
 # uncomment a function below to run it
 
 # find_sender_count_date_range(start_datetime, end_datetime)
@@ -658,6 +782,8 @@ def find_average_message_length():
 
 # find_most_used_words(100)
 
-single_word_usage("yah")
+# single_word_usage()
 
 # find_average_message_length()
+
+message_count_by_month()
