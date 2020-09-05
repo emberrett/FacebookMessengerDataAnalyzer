@@ -40,7 +40,9 @@ Modify the date ranges, appearance, and excluded data which are passed to the qu
 - **single\_word\_usage(chosen\_word)**
   - Finds total uses of specified word **(chosen\_word)** by each user and shows the results as a bar graph.
 - **find\_average\_message\_length()**
-  - Finds average message length of messages sent by each user and shows the results as a bar graph.<br /><br />
+  - Finds average message length of messages sent by each user and shows the results as a bar graph.
+- **message\_count\_by\_month()**
+  - Finds the total number of messages sent over time, grouped by month, shown as a line graph with ticks every 3 months starting from the creation of the message thread. <br /><br />
 
 **Required Libraries**
 
@@ -56,3 +58,4 @@ Modify the date ranges, appearance, and excluded data which are passed to the qu
 - collections
   - Counter
 - csv
+-numpy
