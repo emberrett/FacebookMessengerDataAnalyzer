@@ -20,12 +20,12 @@ folder = filedialog.askdirectory(title="Select Folder")
 folder_name = os.path.basename(os.path.normpath(folder)).split("_")[0]
 
 # sets data range for results
-start_datetime = 'Jul 12 2019  12:00AM'
-end_datetime = 'Jul 12 2020  12:59PM'
+startDT = 'Jan 1 2021  12:00AM'
+endDT = 'Dec 31 2021  11:59PM'
 
 # set color of charts
-primaryColor = 'black'
-secondaryColor = 'orange'
+primaryColor = '#504f4f'
+secondaryColor = '#cf8121'
 tertiaryColor = 'white'
 
 # people you want to exclude from your data
@@ -185,17 +185,18 @@ def getAllMessages():
     return messDict
 
 
-def findSenderCountDateRange(start, end):
+def findSenderCount(dateRange=False, start=None, end=None):
     messDict = getAllMessages()
     countDict = {}
 
-    # convert start date+time to datetime, then timestamp as integer
-    startDatetimeDT = datetime.strptime(start, '%b %d %Y %I:%M%p')
-    startDatetimeTS = int(startDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+    if dateRange:
+        # convert start date+time to datetime, then timestamp as integer
+        startDatetimeDT = datetime.strptime(start, '%b %d %Y %I:%M%p')
+        startDatetimeTS = int(startDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
 
-    # convert end date+time to datetime, then timestamp as integer
-    endDatetimeDT = datetime.strptime(end, '%b %d %Y %I:%M%p')
-    endDatetimeTS = int(endDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+        # convert end date+time to datetime, then timestamp as integer
+        endDatetimeDT = datetime.strptime(end, '%b %d %Y %I:%M%p')
+        endDatetimeTS = int(endDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
 
     # put names here that you want to exclude
     # get unique names in messages
@@ -206,7 +207,10 @@ def findSenderCountDateRange(start, end):
         if y not in countDict:
             countDict[y] = 0
             # check if message is in date range
-        if startDatetimeTS <= messDict[x][0] <= endDatetimeTS:
+        if dateRange:
+            if startDatetimeTS <= messDict[x][0] <= endDatetimeTS:
+                countDict[y] += 1
+        else:
             countDict[y] += 1
 
     # creates nwe formatted dict with first name and last initial
@@ -219,7 +223,11 @@ def findSenderCountDateRange(start, end):
     # sort dictionary by descending order
     formattedCount = dict(sorted(formattedCount.items(), key=operator.itemgetter(1), reverse=True))
 
-    chartTitle = "Number of Messages Sent in " + folder_name + '\n' + " from " + start + " to " + end
+    if dateRange:
+        chartTitle = "Number of Messages Sent in " + folder_name + '\n' + " from " + start + " to " + end
+    else:
+        chartTitle = "Number of Messages Sent in " + folder_name + '\n' + " All Time"
+
     # set x axis
     keys = formattedCount.keys()
 
@@ -229,83 +237,18 @@ def findSenderCountDateRange(start, end):
     showBarChart(keys, values, primaryColor, secondaryColor, tertiaryColor, chartTitle)
 
 
-def findSenderCountTotal():
-    messDict = getAllMessages()
-    countDict = {}
-
-    # get unique names in messages
-    for x in messDict:
-        if messDict[x][1] not in excludeList:
-            y = messDict[x][1]
-        # if name is not in name list, add it and set the value to 0
-        if y not in countDict:
-            countDict[y] = 0
-            # check if message is in date range
-        countDict[y] += 1
-
-    # creates nwe formatted dict with first name and last initial
-    formattedCount = {}
-    for x in countDict.keys():
-        nameSplit = x.split(" ")
-        formattedName = nameSplit[0] + " " + nameSplit[-1][:1]
-        formattedCount[formattedName] = countDict[x]
-
-    # sort dictionary by descending order
-    formattedCount = dict(sorted(formattedCount.items(), key=operator.itemgetter(1), reverse=True))
-
-    chartTitle = "Number of Messages Sent in " + folder_name + '\n' + " All Time"
-    # set x axis
-    keys = formattedCount.keys()
-    # set y axis
-    values = formattedCount.values()
-
-    showBarChart(keys, values, primaryColor, secondaryColor, tertiaryColor, chartTitle)
-
-
-def findCharacterCountTotal():
+def findCharacterCount(dateRange=False, start=None, end=None):
     messDict = getTextualMessages()
     countDict = {}
 
-    # get unique names in messages
-    for x in messDict:
-        if messDict[x][1] not in excludeList:
-            y = messDict[x][1]
-        # if name is not in name list, add it and set the value to 0
-        if y not in countDict:
-            countDict[y] = 0
-            # check if message is in date range
-        countDict[y] += len(messDict[x][2])
+    if dateRange:
+        # convert start date+time to datetime, then timestamp as integer
+        startDatetimeDT = datetime.strptime(start, '%b %d %Y %I:%M%p')
+        startDatetimeTS = int(startDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
 
-    # creates nwe formatted dict with first name and last initial
-    formattedCount = {}
-    for x in countDict.keys():
-        nameSplit = x.split(" ")
-        formattedName = nameSplit[0] + " " + nameSplit[-1][:1]
-        formattedCount[formattedName] = countDict[x]
-
-    # sort dictionary by descending order
-    formattedCount = dict(sorted(formattedCount.items(), key=operator.itemgetter(1), reverse=True))
-
-    chartTitle = "Number of Characters Sent in " + folder_name + '\n' + " All Time"
-    # set x axis
-    keys = formattedCount.keys()
-    # set y axis
-    values = formattedCount.values()
-
-    showBarChart(keys, values, primaryColor, secondaryColor, tertiaryColor, chartTitle)
-
-
-def findCharacterCountDateRange(start, end):
-    messDict = getTextualMessages()
-    countDict = {}
-
-    # convert start date+time to datetime, then timestamp as integer
-    startDatetimeDT = datetime.strptime(start, '%b %d %Y %I:%M%p')
-    startDatetimeTS = int(startDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
-
-    # convert end date+time to datetime, then timestamp as integer
-    endDatetimeDT = datetime.strptime(end, '%b %d %Y %I:%M%p')
-    endDatetimeTS = int(endDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+        # convert end date+time to datetime, then timestamp as integer
+        endDatetimeDT = datetime.strptime(end, '%b %d %Y %I:%M%p')
+        endDatetimeTS = int(endDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
 
     # put names here that you want to exclude
     # get unique names in messages
@@ -316,7 +259,10 @@ def findCharacterCountDateRange(start, end):
         if y not in countDict:
             countDict[y] = 0
             # check if message is in date range
-        if startDatetimeTS <= messDict[x][0] <= endDatetimeTS:
+        if dateRange:
+            if startDatetimeTS <= messDict[x][0] <= endDatetimeTS:
+                countDict[y] += len(messDict[x][2])
+        else:
             countDict[y] += len(messDict[x][2])
 
     # creates nwe formatted dict with first name and last initial
@@ -329,7 +275,10 @@ def findCharacterCountDateRange(start, end):
     # sort dictionary by descending order
     formattedCount = dict(sorted(formattedCount.items(), key=operator.itemgetter(1), reverse=True))
 
-    chartTitle = "Number of Characters Sent in " + folder_name + '\n' + " from " + start + " to " + end
+    if dateRange:
+        chartTitle = "Number of Characters Sent in " + folder_name + '\n' + " from " + start + " to " + end
+    else:
+        chartTitle = "Number of Characters Sent in " + folder_name + '\n' + " All Time"
     # set x axis
     keys = formattedCount.keys()
     print(keys)
@@ -340,11 +289,24 @@ def findCharacterCountDateRange(start, end):
     showBarChart(keys, values, primaryColor, secondaryColor, tertiaryColor, chartTitle)
 
 
-def findMostUserWords(mostCommonCount):
+def findMostUserWords(mostCommonCount, dateRange=False, start=None, end=None):
     messDict = getTextualMessages()
     # get unique names in messages
     allWords = []
+
+    if dateRange:
+        # convert start date+time to datetime, then timestamp as integer
+        startDatetimeDT = datetime.strptime(start, '%b %d %Y %I:%M%p')
+        startDatetimeTS = int(startDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+
+        # convert end date+time to datetime, then timestamp as integer
+        endDatetimeDT = datetime.strptime(end, '%b %d %Y %I:%M%p')
+        endDatetimeTS = int(endDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+
     for x in messDict:
+        if dateRange:
+            if not (startDatetimeTS <= messDict[x][0] <= endDatetimeTS):
+                continue
         if messDict[x][1] not in excludeList:
             split_words = messDict[x][2].split()
             for w in split_words:
@@ -372,27 +334,47 @@ def findMostUserWords(mostCommonCount):
     csvFile = filedialog.asksaveasfile(type='a', filetypes=fileTypes, defaultextension=csv)
     # set file path to variable
     csvFile = csvFile.name
+    # create header:
+    if dateRange:
+        header = f"Top {mostCommonCount} Words Used in {folder_name} from {start} to  {end}"
+    else:
+        header = f"Top {mostCommonCount} Words Used in {folder_name} All Time"
     # write dictionary of words to csv file
     with open(csvFile, 'w', newline='', encoding="utf-8") as csvFile:
         writer = csv.writer(csvFile)
+        writer.writerow(header)
         for key, value in mostOccur.items():
             print(key, value)
             writer.writerow([key, value])
 
 
-def singleWordUsage(chosenWord):
+def wordUsage(chosenWords, dateRange=False, start=None, end=None):
     messDict = getTextualMessages()
     countDict = {}
+    lowerList = []
+
+    if dateRange:
+        # convert start date+time to datetime, then timestamp as integer
+        startDatetimeDT = datetime.strptime(start, '%b %d %Y %I:%M%p')
+        startDatetimeTS = int(startDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+
+        # convert end date+time to datetime, then timestamp as integer
+        endDatetimeDT = datetime.strptime(end, '%b %d %Y %I:%M%p')
+        endDatetimeTS = int(endDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
 
     # get unique names in messages
     for x in messDict:
+        if dateRange:
+            if not (startDatetimeTS <= messDict[x][0] <= endDatetimeTS):
+                continue
         if messDict[x][1] not in excludeList:
             y = messDict[x][1]
         # if name is not in name list, add it and set the value to 0
         if y not in countDict:
             countDict[y] = 0
-        if chosenWord.lower() in messDict[x][2].lower():
-            countDict[y] += 1
+        for w in chosenWords:
+            if w.lower() in messDict[x][2].lower():
+                countDict[y] += 1
 
     # creates nwe formatted dict with first name and last initial
     formattedCount = {}
@@ -404,7 +386,11 @@ def singleWordUsage(chosenWord):
     # sort dictionary by descending order
     formattedCount = dict(sorted(formattedCount.items(), key=operator.itemgetter(1), reverse=True))
 
-    chartTitle = "Total Usage of the Word " + '"' + chosenWord + '"' + " in " + folder_name + '\n' + " All Time"
+    if dateRange:
+        chartTitle = "Total Usage of the Following Words " + " in " + folder_name + '\n' + " from " \
+                     + start + " to " + end + ":" + '\n' + str(chosenWords)
+    else:
+        chartTitle = "Total Usage of the Following Words " + " in " + folder_name + " All Time:" + '\n' + str(chosenWords)
     # set x axis
     keys = formattedCount.keys()
     # set y axis
@@ -413,12 +399,25 @@ def singleWordUsage(chosenWord):
     showBarChart(keys, values, primaryColor, secondaryColor, tertiaryColor, chartTitle)
 
 
-def findAverageMessageLength():
+def findAverageMessageLength(dateRange=False, start=None, end=None):
     messDict = getTextualMessages()
     character_countDict = {}
     message_countDict = {}
+
+    if dateRange:
+        # convert start date+time to datetime, then timestamp as integer
+        startDatetimeDT = datetime.strptime(start, '%b %d %Y %I:%M%p')
+        startDatetimeTS = int(startDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+
+        # convert end date+time to datetime, then timestamp as integer
+        endDatetimeDT = datetime.strptime(end, '%b %d %Y %I:%M%p')
+        endDatetimeTS = int(endDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+
     # get unique names in messages
     for x in messDict:
+        if dateRange:
+            if not (startDatetimeTS <= messDict[x][0] <= endDatetimeTS):
+                continue
         if messDict[x][1] not in excludeList:
             y = messDict[x][1]
         # if name is not in name list, add it and set the value to 0
@@ -428,15 +427,12 @@ def findAverageMessageLength():
             # check if message is in date range
         character_countDict[y] += len(messDict[x][2])
         message_countDict[y] += 1
-    print(character_countDict)
-    print(message_countDict)
     average_character_count = {}
     for c in character_countDict.keys():
         average_key = c
         average_value = character_countDict[c] / message_countDict[c]
         average_value = round(average_value, 2)
         average_character_count[average_key] = average_value
-    print(average_character_count)
     # creates nwe formatted dict with first name and last initial
     formattedCount = {}
     for x in average_character_count.keys():
@@ -445,9 +441,13 @@ def findAverageMessageLength():
         formattedCount[formattedName] = average_character_count[x]
 
     # sort dictionary by descending order
-    chartTitle = dict(sorted(formattedCount.items(), key=operator.itemgetter(1), reverse=True))
+    formattedCount = dict(sorted(formattedCount.items(), key=operator.itemgetter(1), reverse=True))
 
-    chart_title = "Average Length of Message Per Person in " + folder_name + '\n' + " All Time"
+    if dateRange:
+        chartTitle = "Average Length of Message Per Person in " + folder_name + '\n' + " from" \
+                     + start + " to " + end
+    else:
+        chartTitle = "Average Length of Message Per Person in " + folder_name + '\n' + " All Time"
     # set x axis
     keys = formattedCount.keys()
     # set y axis
@@ -456,11 +456,23 @@ def findAverageMessageLength():
     showBarChart(keys, values, primaryColor, secondaryColor, tertiaryColor, chartTitle)
 
 
-def messageCountByMonth():
+def messageCountByMonth(dateRange=False, start=None, end=None):
     messDict = getAllMessages()
     monthList = []
 
+    if dateRange:
+        # convert start date+time to datetime, then timestamp as integer
+        startDatetimeDT = datetime.strptime(start, '%b %d %Y %I:%M%p')
+        startDatetimeTS = int(startDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+
+        # convert end date+time to datetime, then timestamp as integer
+        endDatetimeDT = datetime.strptime(end, '%b %d %Y %I:%M%p')
+        endDatetimeTS = int(endDatetimeDT.replace(tzinfo=timezone.utc).timestamp()) * 1000
+
     for x in messDict:
+        if dateRange:
+            if not (startDatetimeTS <= messDict[x][0] <= endDatetimeTS):
+                continue
         # get timestamp from message
         timestamp = int(messDict[x][0]) / 1000
         # convert time stamp to date time
@@ -477,7 +489,7 @@ def messageCountByMonth():
 
     # sort list by year, then month
     monthList = sorted(monthList, key=lambda x: (int(x.split("-")[0]), int(x.split("-")[-1])))
-
+    print(monthList)
     # get the last and first month
     firstMonth = monthList[0]
     # add all months in range
@@ -525,34 +537,29 @@ def messageCountByMonth():
 
     # we want the counts to be the total up to that point, not just the total for the month
     # so for each month count after the first, we need to add the value from the previous month
-    u = 0
-    for m, s in enumerate(monthCounts):
-        if u > 0:
-            monthCounts[m] += monthCounts[m - 1]
-        u = 1
+    if dateRange:
+        chartTitle = "Messages Sent in " + folder_name + '\n' + " from " \
+                     + start + " to " + end
+    else:
+        chartTitle = "Messages Sent in " + folder_name + '\n' + " All Time"
 
-    chartTitle = "Messages Sent in " + folder_name + '\n' + " All Time"
     # set x axis
     keys = newMonthList
     # set y axis
     values = monthCounts
-    showLineChart(keys, values, primaryColor, secondaryColor, tertiaryColor, chartTitle)
-
+    showBarChart(keys, values, primaryColor, secondaryColor,tertiaryColor, chartTitle)
 
 # uncomment a function below to run it
 
-# findSenderCountDateRange(start_datetime, end_datetime)
+# findSenderCount(dateRange=True,start=startDT,end=endDT)
 
-# findSenderCountTotal()
-
-# findCharacterCountTotal()
-
-# findCharacterCountDateRange(start_datetime, end_datetime)
+# findCharacterCount(dateRange=True,start=startDT,end=endDT)
 
 # findMostUserWords(100)
 
-# singleWordUsage()
+# wordUsage(['damn'],dateRange=True,start=startDT,end=endDT)
 
-# findAverageMessageLength()
 
-# messageCountByMonth()
+# findAverageMessageLength(dateRange=True,start=startDT,end=endDT)
+
+# messageCountByMonth(dateRange=True,start=startDT,end=endDT)
