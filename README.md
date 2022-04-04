@@ -1,3 +1,5 @@
+OUT OF DATE NEEDS TO BE UPDATED
+
 # FB-Messenger-Data-Analyzer
 This Python script runs analysis on Facebook Messenger, based on JSON files provided by Facebook.
 
