@@ -1,4 +1,4 @@
-OUT OF DATE NEEDS TO BE UPDATED
+[OUT OF DATE]
 
 This Python script runs analysis on Facebook Messenger, based on JSON files provided by Facebook.
 
