@@ -1,5 +1,0 @@
-Add error handling for when there are no json files in the selected folder
-
-Change conditionals that reference excluded word array to just compare words in lower case, so there is not duplicate words in the array (use ToLower)
-
-Convert duplicated code in each function to classes (each function right now has a lot of duplicated code, mostly in the plot code).
