@@ -111,7 +111,6 @@ def view_total_messages_sent_by_each_member(date_range=False, start=None, end=No
 def view_total_characters_sent_by_each_member(date_range=False, start=None, end=None):
     messages = get_textual_messages()
     character_count_dict = {}
-
     if date_range:
         start_datetime = datetime.strptime(start, '%b %d %Y %I:%M%p')
         start_datetime_timestamp = int(start_datetime.replace(
@@ -250,7 +249,7 @@ def find_total_usage_for_each_specified_word(chosed_words, date_range=False, sta
                    SECONDARY_COLOR, TERTIARY_COLOR, chart_title)
 
 
-def find_average_message_lenth_for_each_member(date_range=False, start=None, end=None):
+def find_average_message_length_for_each_member(date_range=False, start=None, end=None):
     messages = get_textual_messages()
     character_count_dict = {}
     message_count_dict = {}
