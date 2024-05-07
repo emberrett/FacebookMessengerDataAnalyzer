@@ -1,3 +1,6 @@
+INBOX_FOLDER_PATH = None
+# INBOX_FOLDER_PATH = '/home/user/fb-messages/inbox/'
+
 START_DATETIME = 'Jan 1 2022 12:00AM'
 END_DATETIME = 'Dec 31 2022 11:59PM'
 
